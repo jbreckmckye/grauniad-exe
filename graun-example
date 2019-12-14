@@ -1,0 +1,30 @@
++------------------------------------------------------------------------------+
+| GRAUNIAD.EXE                                                                 |
++------------------------------------------------------------------------------+
+
+ POLITICS     [1] RUSSIA LINK TO NHS DOCUMENTS 'NONSENSE', SAYS CORBYN         
+
+              [2] SECONDARY INFEKTION: Reddit says Russia involved in NHS leak                                        
+              [3] ANTISEMITISM: Tories investigate three candidates          
+              [4] ELECTION DEBATE VERDICT: Johnson v Corbyn - who won?          
+
+
+ WORLD        [1] AUSTRALIA: Blazes 'too big to put out' as 140 bushfires rage
+                  in NSW and Queensland
+              [2] IRAN: US citizen released from jail in prisoner swap
+              [3] ZIMBABWE: Victoria Falls dries to trickle after worst
+                  drought in a century
+
+
+ ENVIRONMENT  [1] Oceans losing oxygen at unprecedented rate, experts warn
+              [2] Measures to arrest nature's decline must be passed into law,
+                  MEPs say
+              [3] Cutting air pollution 'can prevent deaths within weeks'
+
+
+--------------------------------------------------------------------------------
+To read an article, call grauniad with a section and command
+e.g. grauniad.exe politics 3
+
+Or provide a url slug
+e.g. grauniad.exe info/2019/may/01/guardian-digital-fellowship-2019-apply-now

@@ -20,10 +20,10 @@ description:         Please see the README on GitHub at <https://github.com/jbre
 
 dependencies:
 - base >= 4.7 && < 5
-- http-client
 - aeson
 - text
-- http-client
+- http-conduit
+- bytestring
 
 library:
   source-dirs: src
