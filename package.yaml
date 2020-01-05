@@ -24,6 +24,7 @@ dependencies:
 - text
 - http-conduit
 - bytestring
+- tagsoup
 
 library:
   source-dirs: src

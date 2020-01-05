@@ -40,8 +40,8 @@ printMany :: Char -> Int -> String
 printMany c i = printMany' c i ""
 
 printMany' :: Char -> Int -> String -> String
-printMany' c 0 head = head
-printMany' c n head = printMany' c nextN (head ++ [c])
+printMany' c 0 done = done
+printMany' c n done = printMany' c nextN (done ++ [c])
     where nextN = n - 1
 
 padded :: String -> Int -> String
