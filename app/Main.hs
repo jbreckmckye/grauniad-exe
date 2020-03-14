@@ -2,44 +2,52 @@
 
 module Main (main) where
 
-import System.Environment
-import Control.Monad.IO.Class
-import Data.Aeson
-import Network.HTTP.Simple
-import qualified Data.ByteString.Lazy.Char8 as L8
+import Cmd ( cmdFromArgs )
+
+main :: IO ()
+main = do
+  cmd <- cmdFromArgs
+  print (show cmd)
+
+
+-- import System.Environment
+-- import Control.Monad.IO.Class
+-- import Data.Aeson
+-- import Network.HTTP.Simple
+-- import qualified Data.ByteString.Lazy.Char8 as L8
 -- import qualified Data.ByteString.Char8 as B
 
 -- import Context ( apiKey )
 
-data Args
-    = SectionArgs { section :: String, ref :: Int }
-    | UrlArgs     { urlSlug :: String }
-    | NoArgs
+-- data Args
+--     = SectionArgs { section :: String, ref :: Int }
+--     | UrlArgs     { urlSlug :: String }
+--     | NoArgs
 
-instance Show Args where
-    show (SectionArgs section _) = "Display article from section " ++ section
-    show (UrlArgs urlSlug)       = "Display article from URL " ++ urlSlug
-    show (NoArgs)                = "Display a front"
+-- instance Show Args where
+--     show (SectionArgs section _) = "Display article from section " ++ section
+--     show (UrlArgs urlSlug)       = "Display article from URL " ++ urlSlug
+--     show (NoArgs)                = "Display a front"
 
-main :: IO ()
-main = do
-    args <- parseArgs
-    putStrLn $ "Args is " ++ show args
-    -- case args of
-    --     SectionArgs section ref -> showArticle (fromSection section ref)
-    --     UrlArgs urlSlug         -> showArticle (matchUrl urlSlug)
-    --     NoArgs                  -> showFront
+-- main :: IO ()
+-- main = do
+--     args <- parseArgs
+--     putStrLn $ "Args is " ++ show args
+--     -- case args of
+--     --     SectionArgs section ref -> showArticle (fromSection section ref)
+--     --     UrlArgs urlSlug         -> showArticle (matchUrl urlSlug)
+--     --     NoArgs                  -> showFront
 
-parseArgs :: IO Args
-parseArgs = do
-    rawArgs <- getArgs
-    return $ case (length rawArgs) of
-        0       -> NoArgs
-        1       -> UrlArgs (rawArgs !! 0)
-        2       -> SectionArgs (rawArgs !! 0) (parseInt $ rawArgs!!1)
+-- parseArgs :: IO Args
+-- parseArgs = do
+--     rawArgs <- getArgs
+--     return $ case (length rawArgs) of
+--         0       -> NoArgs
+--         1       -> UrlArgs (rawArgs !! 0)
+--         2       -> SectionArgs (rawArgs !! 0) (parseInt $ rawArgs!!1)
 
-parseInt :: String -> Int
-parseInt text = read text :: Int
+-- parseInt :: String -> Int
+-- parseInt text = read text :: Int
 
 -- parseArgs :: IO Args
 -- parseArgs = do
