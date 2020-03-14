@@ -4,17 +4,18 @@ module Cmd (
 ) where
 
 import System.Environment
+import Data.Text
 
 data Cmd
   = CmdHeadlines
-  | CmdSectionArticle   { csaName :: String, csaKey :: Integer }
-  | CmdUrlArticle       { cuaUrl :: String }
+  | CmdSectionArticle   { csaName :: Text, csaKey :: Integer }
+  | CmdUrlArticle       { cuaUrl :: Text }
   | CmdUnknown
 
 instance Show Cmd where
   show (CmdHeadlines)                     = "Request for the latest headlines"
-  show (CmdSectionArticle csaName csaKey) = "Request for article number " ++ (show csaKey) ++ " of section name " ++ csaName
-  show (CmdUrlArticle cuaUrl)             = "Request for article from URL " ++ cuaUrl
+  show (CmdSectionArticle csaName csaKey) = "Request for article number " ++ (show csaKey) ++ " of section name " ++ (unpack csaName)
+  show (CmdUrlArticle cuaUrl)             = "Request for article from URL " ++ (unpack cuaUrl)
   show (CmdUnknown)                       = "Request unknown"
 
 -- Get user command
@@ -27,7 +28,8 @@ cmdFromArgs = do
 -- Extract command from args
 extract :: [String] -> Cmd
 extract args = case args of
-  [ ]                 -> CmdHeadlines
-  [url]               -> CmdUrlArticle url
-  [section, key]      -> CmdSectionArticle section ( read key )
-  unknown             -> CmdUnknown
+  [ ]                   -> CmdHeadlines
+  [urlStr]              -> CmdUrlArticle (pack urlStr)
+  [sectionStr, keyStr]  -> CmdSectionArticle (pack sectionStr) (read keyStr)
+  unknown               -> CmdUnknown
+
