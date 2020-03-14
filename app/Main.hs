@@ -5,11 +5,14 @@ module Main (
 ) where
 
 import Cmd ( cmdFromArgs )
+import Fetch ( fetchHtml )
 
 main :: IO ()
 main = do
   cmd <- cmdFromArgs
   print (show cmd)
+  html <- fetchHtml
+  print html
 
 
 -- import System.Environment
