@@ -6,18 +6,20 @@ module Main (
 
 import Cmd ( cmdFromArgs )
 import Fetch ( fetchHtml )
-import Decode ( getTitle, getLinks )
+import Decode ( getTitle, getLinks, getHeads )
 
 main :: IO ()
 main = do
   cmd <- cmdFromArgs
   print (show cmd)
   html <- fetchHtml
+  let heads = getHeads html
+  print heads
   -- print html
-  title <- getTitle html
-  print title
-  let links = getLinks html
-  print links
+  -- title <- getTitle html
+  -- print title
+  -- let links = getLinks html
+  -- print links
 
 
 -- import System.Environment
