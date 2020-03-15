@@ -40,14 +40,18 @@ getTitle' :: [Tag Text] -> Text
 getTitle' = innerText . take 2 . dropWhile (~/= ("<h1>" :: String))
 
 
-getLinks :: [Tag Text] -> [Text]
-getLinks [] = []
-getLinks xs = (firstLink : others)
-  where afterOpen = dropWhile (~/= ("<a>" :: String)) $ xs
+getLinks :: Text -> [Text]
+getLinks html = (getLinks' . parseTags) html
+
+
+getLinks' :: [Tag Text] -> [Text]
+getLinks' [] = []
+getLinks' xs = (firstLink : others)
+  where afterOpen = dropWhile (~/= ("<a class='fc-item__link'>" :: String)) $ xs
         beforeClose = takeWhile (~/= ("</a>" :: String)) $ afterOpen
         firstLinkLen = length beforeClose
         firstLink = parseLink beforeClose
-        others = getLinks $ (drop firstLinkLen afterOpen)
+        others = getLinks' $ (drop firstLinkLen afterOpen)
 
 
 parseLink :: [Tag Text] -> Text

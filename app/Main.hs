@@ -7,7 +7,6 @@ module Main (
 import Cmd ( cmdFromArgs )
 import Fetch ( fetchHtml )
 import Decode ( getTitle, getLinks )
-import Text.HTML.TagSoup
 
 main :: IO ()
 main = do
@@ -17,7 +16,7 @@ main = do
   -- print html
   title <- getTitle html
   print title
-  let links = getLinks $ parseTags html
+  let links = getLinks html
   print links
 
 
