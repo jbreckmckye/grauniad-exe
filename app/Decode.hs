@@ -55,7 +55,12 @@ getLinks' xs = (firstLink : others)
 
 
 parseLink :: [Tag Text] -> Text
-parseLink tags = innerText tags
+parseLink tags = (formatKicker kicker) <> headline
+  where kicker = innerText . takeWhile (~/= ("</span>" :: String)) $ tags
+        headline = innerText . dropWhile (~/= ("<span class='js-headline-text'>" :: String)) $ tags
+        
+        formatKicker "" = ""
+        formatKicker text = (T.toUpper text) <> ": "
 
 -- getTitle :: Text -> IO Text
 -- getTitle html = do
