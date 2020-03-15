@@ -6,13 +6,19 @@ module Main (
 
 import Cmd ( cmdFromArgs )
 import Fetch ( fetchHtml )
+import Decode ( getTitle, getLinks )
+import Text.HTML.TagSoup
 
 main :: IO ()
 main = do
   cmd <- cmdFromArgs
   print (show cmd)
   html <- fetchHtml
-  print html
+  -- print html
+  title <- getTitle html
+  print title
+  let links = getLinks $ parseTags html
+  print links
 
 
 -- import System.Environment

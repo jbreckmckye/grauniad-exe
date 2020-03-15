@@ -6,6 +6,10 @@ module Cmd (
 import System.Environment
 import Data.Text
 
+
+-- Types
+-- ----------------------------------------------------------------------
+
 data Cmd
   = CmdHeadlines
   | CmdSectionArticle   { csaName :: Text, csaKey :: Integer }
@@ -18,14 +22,16 @@ instance Show Cmd where
   show (CmdUrlArticle cuaUrl)             = "Request for article from URL " ++ (unpack cuaUrl)
   show (CmdUnknown)                       = "Request unknown"
 
--- Get user command
+
+-- Operations
+-- ----------------------------------------------------------------------
+
 cmdFromArgs :: IO Cmd
 cmdFromArgs = do
   args <- getArgs
   return $ extract args
 
 
--- Extract command from args
 extract :: [String] -> Cmd
 extract args = case args of
   [ ]                   -> CmdHeadlines
