@@ -6,12 +6,12 @@ module Main (
 
 import Cmd ( cmdFromArgs )
 import Fetch ( fetchHtml )
-import Decode ( getHeads )
+import Decode ( frontsFromHTML )
 
 main :: IO ()
 main = do
   cmd <- cmdFromArgs
   print (show cmd)
   html <- fetchHtml
-  let heads = getHeads html
+  let heads = frontsFromHTML html
   print heads

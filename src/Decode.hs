@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Decode (
-  Front,
-  getHeads
+  frontsFromHTML
 ) where
 
 import qualified Data.Text as T
@@ -16,31 +15,62 @@ import Text.HTML.TagSoup
 data Front
   = Front { frName :: Text, frHeads :: [ArticleHead] }
 
+instance Show Front where
+  show (Front name heads) = show $ "Section: " <> (show name) <> "; articles: " <> (show heads)
+
+
 data ArticleHead
   = ArticleHead { ahTopic :: Text, ahName :: Text }
 
 instance Show ArticleHead where
-  show (ArticleHead topic name) = show $ (T.toUpper topic) <> ": " <> name
+  show (ArticleHead topic name) = show $ (T.toUpper topic) <> "/" <> name
 
 
 -- Operations
 -- ----------------------------------------------------------------------
 
--- Get headline section and children
-
-headlineSec :: Text -> [Tag Text]
-headlineSec html = headlineSec' . parseTags $ html
-
-headlineSec' :: [Tag Text] -> [Tag Text]
-headlineSec' tags = cutAfter . cutBefore $ tags
-  where cutBefore = dropWhile (~/= ("<section id='headlines'>" :: String))
-        cutAfter = takeWhile (~/= ("</section>" :: String))
+frontsTags :: [Tag Text] -> [[Tag Text]]
+frontsTags tags = partitions predicate tags
+  where predicate = (~== ("<section>" :: String))
 
 
--- Get articles from a section
+frontName :: [Tag Text] -> Text
+frontName tags = extractId firstTag
+  where extractId = fromAttrib "id"
+        firstTag = head tags
 
-getHeads :: Text -> [ArticleHead]
-getHeads html = map parseHead (getLinkContents . headlineSec $ html)
+
+frontHeads :: [Tag Text] -> [ArticleHead]
+frontHeads tags = map parseHead links
+  where links = getLinkContents tags
+
+
+fronts :: [Tag Text] -> [Front]
+fronts tags = map construct tagSets
+   where tagSets = frontsTags tags
+         construct tagSet = Front (frontName tagSet) (frontHeads tagSet)
+
+
+frontsFromHTML :: Text -> [Front]
+frontsFromHTML html = fronts $ parseTags html
+
+
+
+-- -- Get headline section and children
+
+-- headlineSec :: Text -> [Tag Text]
+-- headlineSec html = headlineSec' . parseTags $ html
+
+-- headlineSec' :: [Tag Text] -> [Tag Text]
+-- headlineSec' tags = cutAfter . cutBefore $ tags
+--   where cutBefore = dropWhile (~/= ("<section id='headlines'>" :: String))
+--         cutAfter = takeWhile (~/= ("</section>" :: String))
+
+
+-- -- Get articles from a section
+
+-- getHeads :: Text -> [ArticleHead]
+-- getHeads html = map parseHead (getLinkContents . headlineSec $ html)
 
 
 getLinkContents :: [Tag Text] -> [[Tag Text]]
@@ -51,9 +81,6 @@ getLinkContents tags = (firstLink : rest)
         
         rest      = getLinkContents restTags
         restTags  = drop (length firstLink) afterOpen
-        
-
-
 
 
 parseHead :: [Tag Text] -> ArticleHead
