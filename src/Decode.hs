@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Decode (
-  Front,
-  getHeads
+  frontsFromHTML
 ) where
 
 import qualified Data.Text as T
 import Data.Text ( Text )
 import Text.HTML.TagSoup
+import Data.List
 
 
 -- Types
@@ -16,31 +16,55 @@ import Text.HTML.TagSoup
 data Front
   = Front { frName :: Text, frHeads :: [ArticleHead] }
 
+instance Show Front where
+  show (Front name heads) = show $ "Section: " <> (T.unpack name) <> "; Articles: " <> (show heads)
+
+
 data ArticleHead
   = ArticleHead { ahTopic :: Text, ahName :: Text }
 
 instance Show ArticleHead where
-  show (ArticleHead topic name) = show $ (T.toUpper topic) <> ": " <> name
+  show (ArticleHead topic name) = T.unpack $ (T.toUpper topic) <> "/" <> name
+
+instance Eq ArticleHead where
+  ah1 == ah2 = (show ah1) == (show ah2)
 
 
 -- Operations
 -- ----------------------------------------------------------------------
 
--- Get headline section and children
-
-headlineSec :: Text -> [Tag Text]
-headlineSec html = headlineSec' . parseTags $ html
-
-headlineSec' :: [Tag Text] -> [Tag Text]
-headlineSec' tags = cutAfter . cutBefore $ tags
-  where cutBefore = dropWhile (~/= ("<section id='headlines'>" :: String))
-        cutAfter = takeWhile (~/= ("</section>" :: String))
+frontsFromHTML :: Text -> [Front]
+frontsFromHTML html = fronts $ parseTags html
 
 
--- Get articles from a section
+frontsTags :: [Tag Text] -> [[Tag Text]]
+frontsTags tags = partitions predicate tags
+  where predicate = (~== ("<section>" :: String))
 
-getHeads :: Text -> [ArticleHead]
-getHeads html = map parseHead (getLinkContents . headlineSec $ html)
+
+frontName :: [Tag Text] -> Text
+frontName tags = extractId firstTag
+  where extractId = fromAttrib "id"
+        firstTag = head tags
+
+
+frontHeads :: [Tag Text] -> [ArticleHead]
+frontHeads tags = nub $ map parseHead links
+  where links = getLinkContents tags
+
+
+fronts :: [Tag Text] -> [Front]
+fronts tags = cleanFronts parsed
+  where parsed = map construct tagSets
+        tagSets = frontsTags tags
+        construct tagSet = Front (frontName tagSet) (frontHeads tagSet)
+
+
+cleanFronts :: [Front] -> [Front]
+cleanFronts = filter notEmpty
+  where notEmpty front = (nameCount front) > 0 && (headCount front) > 0
+        nameCount = length . T.unpack . frName
+        headCount = length . frHeads
 
 
 getLinkContents :: [Tag Text] -> [[Tag Text]]
@@ -51,9 +75,6 @@ getLinkContents tags = (firstLink : rest)
         
         rest      = getLinkContents restTags
         restTags  = drop (length firstLink) afterOpen
-        
-
-
 
 
 parseHead :: [Tag Text] -> ArticleHead
@@ -64,26 +85,3 @@ parseHead tags = ArticleHead topic name
         firstSpan = takeWhile (~/= ("</span>" :: String)) tags
         restTags = drop (length firstSpan) tags
 
-
-
--- getLinks :: Text -> [Text]
--- getLinks html = (getLinks' . parseTags) html
-
-
--- getLinks' :: [Tag Text] -> [Text]
--- getLinks' [] = []
--- getLinks' xs = (firstLink : others)
---   where afterOpen = dropWhile (~/= ("<a class='fc-item__link'>" :: String)) $ xs
---         beforeClose = takeWhile (~/= ("</a>" :: String)) $ afterOpen
---         firstLinkLen = length beforeClose
---         firstLink = parseLink beforeClose
---         others = getLinks' $ (drop firstLinkLen afterOpen)
-
-
--- parseLink :: [Tag Text] -> Text
--- parseLink tags = (formatKicker kicker) <> headline
---   where kicker = innerText . takeWhile (~/= ("</span>" :: String)) $ tags
---         headline = innerText . dropWhile (~/= ("<span class='js-headline-text'>" :: String)) $ tags
-
---         formatKicker "" = ""
---         formatKicker text = (T.toUpper text) <> ": "
