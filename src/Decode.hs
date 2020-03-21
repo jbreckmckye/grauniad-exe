@@ -7,6 +7,7 @@ module Decode (
 import qualified Data.Text as T
 import Data.Text ( Text )
 import Text.HTML.TagSoup
+import Data.List
 
 
 -- Types
@@ -16,7 +17,7 @@ data Front
   = Front { frName :: Text, frHeads :: [ArticleHead] }
 
 instance Show Front where
-  show (Front name heads) = show $ "Section: " <> (T.unpack name) <> "; articles: " <> (show heads)
+  show (Front name heads) = show $ "Section: " <> (T.unpack name) <> "; Articles: " <> (show heads)
 
 
 data ArticleHead
@@ -24,6 +25,9 @@ data ArticleHead
 
 instance Show ArticleHead where
   show (ArticleHead topic name) = T.unpack $ (T.toUpper topic) <> "/" <> name
+
+instance Eq ArticleHead where
+  ah1 == ah2 = (show ah1) == (show ah2)
 
 
 -- Operations
@@ -45,7 +49,7 @@ frontName tags = extractId firstTag
 
 
 frontHeads :: [Tag Text] -> [ArticleHead]
-frontHeads tags = map parseHead links
+frontHeads tags = nub $ map parseHead links
   where links = getLinkContents tags
 
 
@@ -58,11 +62,9 @@ fronts tags = cleanFronts parsed
 
 cleanFronts :: [Front] -> [Front]
 cleanFronts = filter notEmpty
-  where notEmpty front = length (name front) > 0
-        name front = T.unpack $ frName front
-  
-
--- need a cleanHeads fn too
+  where notEmpty front = (nameCount front) > 0 && (headCount front) > 0
+        nameCount = length . T.unpack . frName
+        headCount = length . frHeads
 
 
 getLinkContents :: [Tag Text] -> [[Tag Text]]
