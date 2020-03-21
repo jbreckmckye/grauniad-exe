@@ -16,14 +16,14 @@ data Front
   = Front { frName :: Text, frHeads :: [ArticleHead] }
 
 instance Show Front where
-  show (Front name heads) = show $ "Section: " <> (show name) <> "; articles: " <> (show heads)
+  show (Front name heads) = show $ "Section: " <> (T.unpack name) <> "; articles: " <> (show heads)
 
 
 data ArticleHead
   = ArticleHead { ahTopic :: Text, ahName :: Text }
 
 instance Show ArticleHead where
-  show (ArticleHead topic name) = show $ (T.toUpper topic) <> "/" <> name
+  show (ArticleHead topic name) = T.unpack $ (T.toUpper topic) <> "/" <> name
 
 
 -- Operations
