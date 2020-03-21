@@ -29,6 +29,10 @@ instance Show ArticleHead where
 -- Operations
 -- ----------------------------------------------------------------------
 
+frontsFromHTML :: Text -> [Front]
+frontsFromHTML html = fronts $ parseTags html
+
+
 frontsTags :: [Tag Text] -> [[Tag Text]]
 frontsTags tags = partitions predicate tags
   where predicate = (~== ("<section>" :: String))
@@ -46,31 +50,19 @@ frontHeads tags = map parseHead links
 
 
 fronts :: [Tag Text] -> [Front]
-fronts tags = map construct tagSets
-   where tagSets = frontsTags tags
-         construct tagSet = Front (frontName tagSet) (frontHeads tagSet)
+fronts tags = cleanFronts parsed
+  where parsed = map construct tagSets
+        tagSets = frontsTags tags
+        construct tagSet = Front (frontName tagSet) (frontHeads tagSet)
 
 
-frontsFromHTML :: Text -> [Front]
-frontsFromHTML html = fronts $ parseTags html
+cleanFronts :: [Front] -> [Front]
+cleanFronts = filter notEmpty
+  where notEmpty front = length (name front) > 0
+        name front = T.unpack $ frName front
+  
 
-
-
--- -- Get headline section and children
-
--- headlineSec :: Text -> [Tag Text]
--- headlineSec html = headlineSec' . parseTags $ html
-
--- headlineSec' :: [Tag Text] -> [Tag Text]
--- headlineSec' tags = cutAfter . cutBefore $ tags
---   where cutBefore = dropWhile (~/= ("<section id='headlines'>" :: String))
---         cutAfter = takeWhile (~/= ("</section>" :: String))
-
-
--- -- Get articles from a section
-
--- getHeads :: Text -> [ArticleHead]
--- getHeads html = map parseHead (getLinkContents . headlineSec $ html)
+-- need a cleanHeads fn too
 
 
 getLinkContents :: [Tag Text] -> [[Tag Text]]
@@ -91,26 +83,3 @@ parseHead tags = ArticleHead topic name
         firstSpan = takeWhile (~/= ("</span>" :: String)) tags
         restTags = drop (length firstSpan) tags
 
-
-
--- getLinks :: Text -> [Text]
--- getLinks html = (getLinks' . parseTags) html
-
-
--- getLinks' :: [Tag Text] -> [Text]
--- getLinks' [] = []
--- getLinks' xs = (firstLink : others)
---   where afterOpen = dropWhile (~/= ("<a class='fc-item__link'>" :: String)) $ xs
---         beforeClose = takeWhile (~/= ("</a>" :: String)) $ afterOpen
---         firstLinkLen = length beforeClose
---         firstLink = parseLink beforeClose
---         others = getLinks' $ (drop firstLinkLen afterOpen)
-
-
--- parseLink :: [Tag Text] -> Text
--- parseLink tags = (formatKicker kicker) <> headline
---   where kicker = innerText . takeWhile (~/= ("</span>" :: String)) $ tags
---         headline = innerText . dropWhile (~/= ("<span class='js-headline-text'>" :: String)) $ tags
-
---         formatKicker "" = ""
---         formatKicker text = (T.toUpper text) <> ": "
