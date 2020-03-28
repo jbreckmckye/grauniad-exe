@@ -38,4 +38,3 @@ extract args = case args of
   [urlStr]              -> CmdUrlArticle (pack urlStr)
   [sectionStr, keyStr]  -> CmdSectionArticle (pack sectionStr) (read keyStr)
   unknown               -> CmdUnknown
-
