@@ -9,7 +9,7 @@ import Prelude hiding ( putStrLn )
 import Cmd ( cmdFromArgs )
 import Fetch ( fetchHtml )
 import Decode ( frontsFromHTML )
-import RenderText ( h1, h2 )
+import RenderText ( footer, h1, h2 )
 import Data.Text.IO ( putStrLn )
 
 main :: IO ()
@@ -26,3 +26,6 @@ main = do
   html <- fetchHtml
   let heads = frontsFromHTML html
   print heads
+
+  let ftr = footer "Totally unofficial, toy client for <<The Guardian>>"
+  mapM_ putStrLn ftr

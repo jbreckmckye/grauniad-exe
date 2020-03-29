@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module RenderText (
+  footer,
   h1,
   h2
 ) where
@@ -26,6 +27,11 @@ h2 heading = txtLines ++ [underline]
         wrappedLines = wrap innerWidth heading
         underline = " " <> repText "-" lineWidth
         lineWidth = min innerWidth (T.length heading)
+
+
+footer :: Text -> [Text]
+footer txt = [divider, txt]
+  where divider = repText "-" width
 
 
 pad :: Text -> Text -> Text
